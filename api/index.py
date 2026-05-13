@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException
-from chess_analyzer import main
+from api.chess_analyzer import main
 
 app = FastAPI()
 
