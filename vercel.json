@@ -1,8 +1,8 @@
 {
     "buildCommand": "bash build.sh",
-  "functions": {
-    "app.py": {
-      "excludeFiles": "{tests/**,**/*.test.py,*.ipynb}"
+    "functions": {
+        "api/index.py": {
+            "excludeFiles": "{tests/**,**/*.test.py,*.ipynb}"
+        }
     }
-  }
 }
