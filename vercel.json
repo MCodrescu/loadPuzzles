@@ -1,4 +1,5 @@
 {
+    "buildCommand": "bash build.sh",
   "functions": {
     "app.py": {
       "excludeFiles": "{tests/**,**/*.test.py,*.ipynb}"
