@@ -11,6 +11,3 @@ dependencies = [
     "psycopg2-binary",
     "sqlalchemy",
 ]
-
-[tool.vercel]
-entrypoint = "api.index:app"
