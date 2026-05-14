@@ -1,8 +1,3 @@
 {
-    "buildCommand": "bash build.sh",
-    "functions": {
-        "api/*.py": {
-            "excludeFiles": "{tests/**,**/*.test.py,*.ipynb}"
-        }
-    }
+    "buildCommand": "bash build.sh"
 }
