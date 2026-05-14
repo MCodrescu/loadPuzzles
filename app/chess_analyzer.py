@@ -153,11 +153,11 @@ class ChessAnalyzer:
         )
         df["bestline"] = df["bestline"].apply(json.dumps)
 
-        host = os.environ["PGHOST"]
-        port = os.environ.get("PGPORT", "5432")
-        dbname = os.environ["PGDATABASE"]
-        user = os.environ["PGUSER"]
-        password = quote_plus(os.environ["PGPASSWORD"])
+        host = os.environ["POSTGRES_HOST"]
+        port = os.environ.get("POSTGRES_PORT", "5432")
+        dbname = os.environ["POSTGRES_DATABASE"]
+        user = os.environ["POSTGRES_USER"]
+        password = quote_plus(os.environ["POSTGRES_PASSWORD"])
 
         engine = create_engine(
             f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{dbname}"
@@ -168,11 +168,11 @@ class ChessAnalyzer:
             engine.dispose()
 
 def _get_engine():
-    host = os.environ["PGHOST"]
-    port = os.environ.get("PGPORT", "5432")
-    dbname = os.environ["PGDATABASE"]
-    user = os.environ["PGUSER"]
-    password = quote_plus(os.environ["PGPASSWORD"])
+    host = os.environ["POSTGRES_HOST"]
+    port = os.environ.get("POSTGRES_PORT", "5432")
+    dbname = os.environ["POSTGRES_DATABASE"]
+    user = os.environ["POSTGRES_USER"]
+    password = quote_plus(os.environ["POSTGRES_PASSWORD"])
     return create_engine(f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{dbname}")
 
 
