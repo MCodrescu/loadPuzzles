@@ -1,5 +1,8 @@
 import os
 import datetime
+import stat
+import tarfile
+import urllib.request
 from urllib.parse import quote_plus
 from sqlalchemy import create_engine, text
 
@@ -176,6 +179,40 @@ def _get_engine():
     return create_engine(f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{dbname}")
 
 
+def _download_stockfish(destination: str) -> None:
+    url = (
+        "https://github.com/official-stockfish/Stockfish/releases/download/"
+        "sf_17/stockfish-ubuntu-x86-64-avx2.tar"
+    )
+    archive = f"{destination}.tar"
+
+    urllib.request.urlretrieve(url, archive)
+    with tarfile.open(archive, "r:*") as tar:
+        tar.extractall(path=os.path.dirname(destination))
+    os.remove(archive)
+
+    os.chmod(destination, os.stat(destination).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+
+
+def _get_stockfish_path() -> str:
+    env_path = os.environ.get("STOCKFISH_PATH")
+    if env_path:
+        resolved = os.path.expanduser(env_path)
+        if os.path.exists(resolved):
+            return resolved
+
+    repo_path = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..", "bin", "stockfish-ubuntu-x86-64-avx2")
+    )
+    if os.path.exists(repo_path):
+        return repo_path
+
+    tmp_path = os.path.join("/tmp", "stockfish-ubuntu-x86-64-avx2")
+    if not os.path.exists(tmp_path):
+        _download_stockfish(tmp_path)
+    return tmp_path
+
+
 def main(username: str) -> dict:
     """
     Incrementally load chess game analysis for a Chess.com user into PostgreSQL.
@@ -184,7 +221,7 @@ def main(username: str) -> dict:
     UIDs already analyzed for this user, and only analyzes and loads the remaining
     games. Intended to be called from a serverless function handler.
 
-    Reads STOCKFISH_PATH, PGHOST, PGDATABASE, PGUSER, PGPASSWORD, and optionally
+    Reads optional STOCKFISH_PATH, PGHOST, PGDATABASE, PGUSER, PGPASSWORD, and optionally
     PGPORT from the environment.
 
     Args:
@@ -197,7 +234,7 @@ def main(username: str) -> dict:
     """
     analyzer = ChessAnalyzer(
         username=username,
-        stockfish_path=os.environ["STOCKFISH_PATH"],
+        stockfish_path=_get_stockfish_path(),
     )
 
     now = datetime.datetime.utcnow()
