@@ -3,7 +3,7 @@ from api.chess_analyzer import main
 
 app = FastAPI()
 
-@app.post("/api/analyze")
+@app.post("/")
 def analyze(username: str):
     if not username:
         raise HTTPException(status_code=400, detail="username is required")
