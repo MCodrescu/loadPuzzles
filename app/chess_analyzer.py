@@ -1,5 +1,6 @@
 import os
 import datetime
+import platform
 import shutil
 import stat
 import tarfile
@@ -182,9 +183,17 @@ def _get_engine():
 
 
 def _download_stockfish(destination: str) -> None:
+    machine = platform.machine().lower()
+    if "aarch64" in machine or "arm64" in machine:
+        filename = "stockfish-ubuntu-aarch64.tar"
+    elif "x86_64" in machine or "amd64" in machine:
+        filename = "stockfish-ubuntu-x86-64-avx2.tar"
+    else:
+        raise RuntimeError(f"Unsupported CPU architecture for Stockfish download: {machine}")
+
     url = (
         "https://github.com/official-stockfish/Stockfish/releases/download/"
-        "sf_17/stockfish-ubuntu-x86-64-avx2.tar"
+        f"sf_17/{filename}"
     )
     archive = f"{destination}.tar"
     tmp_extract_dir = tempfile.mkdtemp(prefix="stockfish_extract_")
