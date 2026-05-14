@@ -187,33 +187,31 @@ def _download_stockfish(destination: str) -> None:
         "sf_17/stockfish-ubuntu-x86-64-avx2.tar"
     )
     archive = f"{destination}.tar"
-    extract_dir = os.path.dirname(destination)
+    tmp_extract_dir = tempfile.mkdtemp(prefix="stockfish_extract_")
 
-    urllib.request.urlretrieve(url, archive)
-    with tarfile.open(archive, "r:*") as tar:
-        tar.extractall(path=extract_dir)
-        binary_member = next(
-            (m for m in tar.getmembers() if m.isfile() and os.path.basename(m.name) == "stockfish"),
-            None,
-        )
+    try:
+        urllib.request.urlretrieve(url, archive)
+        with tarfile.open(archive, "r:*") as tar:
+            tar.extractall(path=tmp_extract_dir)
+            members = [
+                m for m in tar.getmembers()
+                if m.isfile() and "stockfish" in os.path.basename(m.name).lower()
+            ]
 
-    if binary_member is None:
-        raise RuntimeError("Downloaded Stockfish archive did not contain a stockfish binary")
+        if not members:
+            raise RuntimeError("Downloaded Stockfish archive did not contain a stockfish binary")
 
-    extracted_path = os.path.join(extract_dir, binary_member.name)
-    if not os.path.exists(extracted_path):
-        raise FileNotFoundError(f"Expected extracted Stockfish binary at {extracted_path}")
+        binary_member = members[0]
+        extracted_path = os.path.join(tmp_extract_dir, binary_member.name)
+        if not os.path.exists(extracted_path):
+            raise FileNotFoundError(f"Expected extracted Stockfish binary at {extracted_path}")
 
-    if os.path.exists(destination):
-        if os.path.isdir(destination):
-            shutil.rmtree(destination)
-        else:
-            os.remove(destination)
-
-    os.makedirs(os.path.dirname(destination), exist_ok=True)
-    shutil.move(extracted_path, destination)
-    os.remove(archive)
-    os.chmod(destination, os.stat(destination).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+        os.makedirs(os.path.dirname(destination), exist_ok=True)
+        shutil.move(extracted_path, destination)
+        os.remove(archive)
+        os.chmod(destination, os.stat(destination).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+    finally:
+        shutil.rmtree(tmp_extract_dir, ignore_errors=True)
 
 
 def _get_stockfish_path() -> str:
