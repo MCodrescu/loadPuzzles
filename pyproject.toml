@@ -6,7 +6,7 @@ dependencies = [
     "fastapi>=0.117.1",
     "chess",
     "stockfish",
-    "chess-dot-com",
+    "chess.com",
     "pandas",
     "psycopg2-binary",
     "sqlalchemy",
