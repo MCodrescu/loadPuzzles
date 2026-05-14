@@ -1,9 +1,9 @@
 from fastapi import FastAPI, HTTPException
-from api.chess_analyzer import main
+from app.chess_analyzer import main
 
 app = FastAPI()
 
-@app.post("/")
+@app.post("/analyze")
 def analyze(username: str):
     if not username:
         raise HTTPException(status_code=400, detail="username is required")
